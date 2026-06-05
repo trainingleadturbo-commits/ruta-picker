@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ruta Picker — Rappi Turbo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--or:#FF441F;--gr:#00C896;--bg:#f5f4f1;--sur:#fff;--bd:rgba(0,0,0,0.08);--bds:rgba(0,0,0,0.15);--tx:#1a1a18;--tm:#6b6b67;--th:#aaa;--r:12px;--rs:8px}
+html,body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--tx);-webkit-font-smoothing:antialiased}
+#setup{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
+.sc{background:var(--sur);border-radius:20px;padding:32px 24px;width:100%;max-width:400px;border:.5px solid var(--bd)}
+.slogo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.slc{width:44px;height:44px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+.slt{font-size:16px;font-weight:700}.sls{font-size:12px;color:var(--tm)}
+.stitle{font-size:22px;font-weight:700;margin-bottom:6px}
+.ssub{font-size:14px;color:var(--tm);margin-bottom:28px;line-height:1.5}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--tm);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.field input{width:100%;padding:12px 14px;border:1.5px solid var(--bds);border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;color:var(--tx);background:var(--sur);outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--or)}
+.field input::placeholder{color:var(--th)}
+.bstart{width:100%;padding:14px;background:var(--or);color:white;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+#app{display:none;min-height:100vh;flex-direction:column;max-width:480px;margin:0 auto}
+.hdr{background:var(--or);padding:16px 18px 14px;position:sticky;top:0;z-index:10}
+.hdr-brand{font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.hdr-picker{background:rgba(255,255,255,0.18);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.hav{width:36px;height:36px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0}
+.hpn{font-size:14px;font-weight:600;color:white}
+.hpm{font-size:11px;color:rgba(255,255,255,0.75);margin-top:1px}
+.otrack{height:4px;background:rgba(255,255,255,0.25);border-radius:2px;overflow:hidden}
+.ofill{height:100%;background:#fff;border-radius:2px;transition:width .4s}
+.ometa{display:flex;justify-content:space-between;margin-top:4px}
+.ometa span{font-size:11px;color:rgba(255,255,255,0.7)}
+.phw{background:#1a1a18;display:flex;overflow-x:auto;scrollbar-width:none}
+.phw::-webkit-scrollbar{display:none}
+.phtab{flex:1;min-width:90px;padding:9px 8px;text-align:center;cursor:pointer;border-bottom:2px solid transparent}
+.phtab span{font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;display:block}
+.phtab small{font-size:9px;color:rgba(255,255,255,0.25);display:block;margin-top:2px}
+.phtab.active{border-bottom-color:var(--or)}.phtab.active span{color:#fff}
+.phtab.pdone small{color:var(--gr)}
+.dyw{background:var(--sur);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;scrollbar-width:none}
+.dyw::-webkit-scrollbar{display:none}
+.dytab{flex:1;min-width:56px;padding:10px 6px 8px;text-align:center;cursor:pointer;border-bottom:2.5px solid transparent}
+.dytab span{font-size:11px;font-weight:600;color:var(--tm);display:block}
+.dytab .dot{width:6px;height:6px;border-radius:50%;background:var(--bds);margin:4px auto 0}
+.dytab.active{border-bottom-color:var(--or)}.dytab.active span{color:var(--or)}
+.dytab.ddone .dot{background:var(--gr)}
+.cnt{padding:18px 16px 110px;flex:1}
+.dyhero{margin-bottom:18px}
+.hero-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dbadge{background:var(--or);color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px}
+.pbadge{font-size:11px;font-weight:600;color:var(--tm);padding:3px 10px;border-radius:20px;border:1px solid var(--bds)}
+.dytitle{font-size:17px;font-weight:700;color:var(--tx);margin-bottom:10px}
+.dprow{display:flex;align-items:center;gap:10px}
+.dpt{flex:1;height:6px;background:var(--bd);border-radius:3px;overflow:hidden}
+.dpf{height:100%;background:var(--gr);border-radius:3px;transition:width .3s}
+.dpp{font-size:12px;font-weight:600;color:var(--gr);min-width:34px;text-align:right}
+.sec{margin-bottom:18px}
+.sech{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.secline{flex:1;height:1px;background:var(--bd)}
+.secn{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.act{background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.act.done{border-color:var(--gr);background:#e6faf5}
+.chk{width:22px;height:22px;min-width:22px;border-radius:50%;border:1.5px solid var(--bds);display:flex;align-items:center;justify-content:center;margin-top:1px;font-size:12px;color:transparent}
+.act.done .chk{background:var(--gr);border-color:var(--gr);color:#fff}
+.ab{flex:1}
+.at{font-size:13px;font-weight:500;color:var(--tx);line-height:1.4}
+.act.done .at{color:var(--tm);text-decoration:line-through}
+.ad{font-size:12px;color:var(--tm);margin-top:3px;line-height:1.4}
+.banner{border-radius:var(--r);padding:16px;text-align:center;margin-top:8px}
+.banner.green{background:#e6faf5;border:1.5px solid var(--gr)}
+.banner.blue{background:#f0f4ff;border:1.5px solid #4a6cf7}
+.banner .ico{font-size:28px;margin-bottom:4px}
+.banner .ttl{font-size:15px;font-weight:700}
+.banner.green .ttl{color:var(--gr)}
+.banner.blue .ttl{color:#4a6cf7}
+.banner .sub{font-size:12px;color:var(--tm);margin-top:4px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--sur);border-top:1px solid var(--bd);padding:10px 16px;z-index:20}
+.navrow{display:flex;gap:10px;margin-bottom:8px}
+.nbtn{flex:1;padding:12px;border-radius:var(--rs);border:1px solid var(--bds);background:var(--sur);color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.nbtn:disabled{opacity:.3;cursor:default}
+.nbtn.pri{background:var(--or);border-color:var(--or);color:#fff}
+.sbtn{width:100%;padding:13px;border-radius:var(--rs);border:none;background:var(--gr);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.sbtn:disabled{opacity:.5;cursor:default}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <div class="sc">
+    <div class="slogo">
+      <div class="slc">🚀</div>
+      <div><div class="slt">Rappi Turbo</div><div class="sls">Entrenamiento Picker</div></div>
+    </div>
+    <div class="stitle">¡Bienvenido/a! 👋</div>
+    <div class="ssub">Ingresa tus datos para comenzar tu ruta de entrenamiento de 10 días.</div>
+    <div class="field"><label>Nombre completo</label><input type="text" id="iname" placeholder="Ej: Juan García López"></div>
+    <div class="field"><label>Fecha de ingreso</label><input type="date" id="idate"></div>
+    <div class="field"><label>Tienda</label><input type="text" id="istore" placeholder="Ej: Benavides, Cataratas..."></div>
+    <button class="bstart" onclick="startApp()">Comenzar entrenamiento →</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-brand">Rappi Turbo · Picker</div>
+    <div class="hdr-picker">
+      <div class="hav" id="hav">PT</div>
+      <div><div class="hpn" id="hpn">Picker</div><div class="hpm" id="hpm"></div></div>
+    </div>
+    <div class="otrack"><div class="ofill" id="ofill" style="width:0%"></div></div>
+    <div class="ometa"><span id="olbl">0 actividades</span><span id="opct">0%</span></div>
+  </div>
+  <div id="phtabs"></div>
+  <div id="dytabs"></div>
+  <div class="cnt" id="cnt"></div>
+  <div class="nav">
+    <div class="navrow">
+      <button class="nbtn" id="btnPrev" onclick="cambiarDia(-1)">← Anterior</button>
+      <button class="nbtn pri" id="btnNext" onclick="cambiarDia(1)">Siguiente →</button>
+    </div>
+    <button class="sbtn" id="btnSend" onclick="enviarDia()">📤 Enviar Día al Sheet</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var GAS = 'https://script.google.com/macros/s/AKfycbyIncWeRnLW4TAssPB9M6P_rnGk61fFfzEsh1GcACe3t9nSKUaYqDnd6w1RkSJuI8Q/exec';
+
+var PH = [
+  {l:'Semana 1', d:[0,1,2,3]},
+  {l:'Semana 2', d:[4,5,6]},
+  {l:'Picker 360°', d:[7,8,9]}
+];
+
+var DY = [
+  {l:'Día 1',p:0,t:'Bienvenida y estructura',s:[
+    {l:'Bienvenida',a:[
+      {e:'🙌',t:'Bienvenida por el Training Lead',d:'Presentación con el equipo y roles de la tienda'},
+      {e:'🏢',t:'Onboarding Rappi',d:'Recorrido 360° por la Dark Store, zonas seguras y rutas de escape'},
+      {e:'📦',t:'Introducción a la operación Turbo',d:'Observación de la operación en vivo'},
+      {e:'👥',t:'Presentación con el equipo',d:'Conoce a cada rol: Store Lead, Zone Lead, Picker Support'}
+    ]},
+    {l:'Nitro y estándares',a:[
+      {e:'📱',t:'Introducción y log-in en Nitro',d:'Módulos de Nitro y cierre de sesión correcto'},
+      {e:'🏆',t:'Estándares operativos',d:'El qué y cómo de las rutinas diarias'},
+      {e:'🧼',t:'Cronograma de limpieza y desinfección',d:'Horarios y responsables por zona'},
+      {e:'📖',t:'Lectura del Planning Diario',d:'Revisión y explicación del plan del día'}
+    ]},
+    {l:'Indicadores básicos',a:[
+      {e:'📉',t:'Defect Rate',d:'Qué es y cómo impacta en la operación'},
+      {e:'⏱️',t:'Delivery Time',d:'Tiempos de entrega y su importancia'},
+      {e:'🚫',t:'Stock Out',d:'Identificación y reporte de quiebres de stock'},
+      {e:'📚',t:'Avance en cursos Know',d:'Manual de Operaciones — Siguiente Nivel'}
+    ]}
+  ]},
+  {l:'Día 2',p:0,t:'ADN de tienda y Nitro',s:[
+    {l:'ADN y estructura',a:[
+      {e:'🏟️',t:'ADN y estructura de la tienda',d:'Zonificación: creación y configuración de zonas'},
+      {e:'🗺️',t:'Planograma de la tienda',d:'Ubicación de productos por zona y categoría'}
+    ]},
+    {l:'Dominio de Nitro',a:[
+      {e:'⚡',t:'Dominio del aplicativo Nitro',d:'Todos los módulos principales'},
+      {e:'📋',t:'Estándares operativos en práctica',d:'Aplicación de rutinas con supervisión'}
+    ]},
+    {l:'Ejecución supervisada',a:[
+      {e:'🚩',t:'Ejecución con seguimiento',d:'Revisión de errores comunes y corrección en vivo'},
+      {e:'🛒',t:'Picking — pocas unidades',d:'Órdenes bajo supervisión directa del Picker Trainer'},
+      {e:'📌',t:'Buenas prácticas de packing',d:'Empaque correcto y manipulación de productos'},
+      {e:'🗣️',t:'Feedback individual',d:'Desempeño, actitud y dudas finales del día'},
+      {e:'📚',t:'Avance en cursos Know',d:'Manual de Operaciones'}
+    ]}
+  ]},
+  {l:'Día 3',p:0,t:'Surtido en Nitro',s:[
+    {l:'Sistema Nitro — Surtido',a:[
+      {e:'🗺️',t:'Zonificación de la tienda',d:'Configuración de productos en zonas en el sistema'},
+      {e:'🚨',t:'Surtido Prioritario',d:'Atención a quiebres y urgencias de reposición'},
+      {e:'📦',t:'Surtido Proactivo',d:'Reposición preventiva antes del quiebre'}
+    ]},
+    {l:'Ejecución supervisada',a:[
+      {e:'🔍',t:'Auditoría práctica',d:'Revisión de configuración de productos en piso'},
+      {e:'🛒',t:'Ejecución en vivo: reposición',d:'Surtido Proactivo y Prioritario con acompañamiento'},
+      {e:'🚩',t:'Revisión de errores comunes',d:'Corrección en vivo con el Picker Trainer'},
+      {e:'🔄',t:'Rutina diaria',d:'Práctica y cumplimiento de la rutina completa'},
+      {e:'🛒',t:'Picking — pocas unidades',d:'Órdenes bajo supervisión directa'},
+      {e:'🗣️',t:'Feedback individual',d:'Desempeño, actitud y dudas finales del día'},
+      {e:'📚',t:'Avance en cursos Know',d:'Manual de Operaciones'}
+    ]}
+  ]},
+  {l:'Día 4',p:0,t:'Cíclicos y Fruver',s:[
+    {l:'Módulo Cíclicos',a:[
+      {e:'🎯',t:'Misiones en Nitro',d:'Explicación y práctica con acompañamiento'},
+      {e:'📅',t:'Meta Tienda en Nitro',d:'Metas semanal, quincenal y mensual'},
+      {e:'⚠️',t:'Impacto de errores en conteo',d:'Consecuencias operativas de errores de inventario'},
+      {e:'📊',t:'Reporte de diferencias',d:'Sobra / Falta: cómo reportar y corregir'}
+    ]},
+    {l:'Pasantía Fruver',a:[
+      {e:'🍎',t:'Pasantía Fruver',d:'Ficha técnica y grados de maduración'},
+      {e:'🗺️',t:'Planograma: secos vs. refrigerados',d:'Distribución y ubicación en Fruver'},
+      {e:'⏰',t:'Horarios de recepción Fruver',d:'Tiempos y proceso de recepción de mercadería'},
+      {e:'🔍',t:'Saneo profundo y descarte en piso',d:'Criterios de calidad y descarte de producto'}
+    ]},
+    {l:'Ejecución semi-autónoma',a:[
+      {e:'🔄',t:'Rutina diaria',d:'Práctica y cumplimiento autónomo'},
+      {e:'🛒',t:'Picking semi-autónomo',d:'Órdenes de pocas unidades con menor supervisión'},
+      {e:'📌',t:'Refuerzo de identificación de productos',d:'Localización por zona con menor asistencia'},
+      {e:'🗣️',t:'Feedback individual',d:'Evaluación final del día 4'}
+    ]}
+  ]},
+  {l:'Día 5',p:1,t:'Gestión de productos y validaciones',s:[
+    {l:'Módulo de validaciones',a:[
+      {e:'💻',t:'Uso del módulo de validaciones',d:'Revisión de fechas de vencimiento'},
+      {e:'📝',t:'Ficha de retiro de productos',d:'Identificación de productos sensibles'},
+      {e:'🚫',t:'Flujo de bloqueo',d:'Cómo bloquear productos no aptos para venta'},
+      {e:'🔄',t:'Proceso de transformaciones',d:'Retiro físico de productos'},
+      {e:'♻️',t:'Gestión de donaciones',d:'Flujo completo de donación de productos'}
+    ]},
+    {l:'Ejecución supervisada',a:[
+      {e:'🔍',t:'Revisión física de productos',d:'Revisión de zona de merma y donación'},
+      {e:'🗂️',t:'Revisión de grupos de merma',d:'Clasificación y gestión de mermas'},
+      {e:'📉',t:'Revisión de errores comunes',d:'Corrección en vivo con el Picker Trainer'},
+      {e:'🗣️',t:'Feedback individual',d:'Desempeño, actitud y dudas finales del día'}
+    ]},
+    {l:'Práctica',a:[
+      {e:'🔄',t:'Rutina diaria',d:'Práctica y cumplimiento de rutinas'},
+      {e:'🛒',t:'Picking con validación',d:'Órdenes aplicando validación de productos'},
+      {e:'📌',t:'Confirmación de estado del pedido',d:'Práctica de confirmación al momento del picking'}
+    ]}
+  ]},
+  {l:'Día 6',p:1,t:'Recepción y TRs',s:[
+    {l:'Módulo de recepción',a:[
+      {e:'📦',t:'Flujo de recepción de mercadería',d:'Proceso completo de recepción'},
+      {e:'🌡️',t:'Toma de temperatura a proveedores',d:'Protocolo de control de temperatura'},
+      {e:'🔄',t:'Gestión de transferencias (TRs)',d:'Proceso completo de transferencias entre tiendas'},
+      {e:'🚫',t:'Políticas y motivos de rechazo',d:'Cuándo y cómo rechazar mercadería'},
+      {e:'🙈',t:'Método de recepción a ciegas',d:'Procedimiento sin referencia previa'},
+      {e:'👥',t:'Roles: Supply y Catman',d:'Responsabilidades en recepción'}
+    ]},
+    {l:'Ejecución',a:[
+      {e:'📥',t:'Recepción completa con acompañamiento',d:'Proceso completo en vivo'},
+      {e:'📉',t:'Revisión de errores comunes',d:'Corrección en vivo'},
+      {e:'🗣️',t:'Feedback individual',d:'Desempeño, actitud y dudas finales del día'}
+    ]},
+    {l:'Práctica',a:[
+      {e:'🛒',t:'Picking — foco en agilidad',d:'Órdenes de pocas unidades con foco en velocidad'},
+      {e:'📌',t:'Escaneo con canastillas',d:'Uso correcto de canastillas en escaneo'}
+    ]}
+  ]},
+  {l:'Día 7',p:1,t:'Picking y Packing',s:[
+    {l:'Módulo Picking y Packing',a:[
+      {e:'🛒',t:'Proceso correcto de picking',d:'Flujo completo con escaneo de productos'},
+      {e:'📲',t:'Escaneo de productos',d:'Uso correcto del escáner en operación'},
+      {e:'⚡',t:'Picker Flash y Super Picker',d:'Modalidades de picking de alto rendimiento'},
+      {e:'🧺',t:'Buenas prácticas de almacenamiento',d:'Uso correcto de canastillas y carritos'},
+      {e:'📦',t:'Big Órdenes',d:'Proceso para órdenes de alto volumen'},
+      {e:'🔄',t:'Órdenes dobletes y doble envío',d:'Gestión de órdenes múltiples simultáneas'},
+      {e:'🎁',t:'Correcto packing de productos',d:'Técnicas de empaque por tipo de producto'},
+      {e:'🍫',t:'Sampling y Órdenes Multibrand',d:'Gestión de muestras y marcas múltiples'}
+    ]},
+    {l:'Despacho',a:[
+      {e:'🪟',t:'Uso de ventanilla de despacho',d:'Protocolo de entrega en ventanilla'},
+      {e:'🤝',t:'Rol de Handeador',d:'Entrega correcta al repartidor Rappitendero'},
+      {e:'🔥',t:'Cómo actuar en hora pico',d:'Gestión en picos de alta demanda'},
+      {e:'🛵',t:'Rol de los Rappitenderos',d:'Relación de los repartidores con la tienda'}
+    ]},
+    {l:'Práctica',a:[
+      {e:'🛒',t:'Picking con seguimiento',d:'Órdenes de pocas unidades con revisión de errores'},
+      {e:'🗣️',t:'Feedback individual',d:'Desempeño, actitud y dudas finales del día'}
+    ]}
+  ]},
+  {l:'Día 8',p:2,t:'Picker 360° — Turno completo',s:[
+    {l:'Turno completo',a:[
+      {e:'🏃',t:'Turno completo en modo Picker',d:'Picking completo iniciando con pocas unidades y escalando progresivamente'},
+      {e:'📋',t:'Tareas según planning',d:'Ejecutar todas las tareas asignadas en el planning del día'}
+    ]}
+  ]},
+  {l:'Día 9',p:2,t:'Picker 360° — Turno completo',s:[
+    {l:'Turno completo',a:[
+      {e:'🏃',t:'Turno completo en modo Picker',d:'Picking completo iniciando con pocas unidades y escalando progresivamente'},
+      {e:'📋',t:'Tareas según planning',d:'Ejecutar todas las tareas asignadas en el planning del día'},
+      {e:'📊',t:'Evaluación operativa',d:'Revisión del desempeño general del período de entrenamiento'}
+    ]}
+  ]},
+  {l:'Día 10',p:2,t:'Cierre y Cultura',s:[
+    {l:'Turno final',a:[
+      {e:'🏃',t:'Turno completo en modo Picker',d:'Consolidación de todas las habilidades adquiridas'},
+      {e:'📋',t:'Tareas según planning',d:'Ejecución completa del planning del día'}
+    ]},
+    {l:'Reunión con Store Lead',a:[
+      {e:'🗣️',t:'Revisión de desempeño general',d:'Espacio de cierre: revisión de los 10 días'},
+      {e:'🎯',t:'Alineación de expectativas',d:'Próximos pasos en la operación'},
+      {e:'💬',t:'Espacio abierto',d:'Dudas, comentarios y compromisos del colaborador'}
+    ]},
+    {l:'Programa Colaborador del Mes',a:[
+      {e:'🌟',t:'Presentación del programa',d:'Criterios de evaluación y beneficios'},
+      {e:'🎖️',t:'Cómo hacer reconocimiento',d:'Proceso para nominar a un compañero destacado'}
+    ]}
+  ]}
+];
+
+var cur = 0;
+var chk = {};
+var sent = {};
+var picker = {};
+
+function gk(d,s,a){ return d+'-'+s+'-'+a; }
+
+function cargar() {
+  try {
+    var raw = localStorage.getItem('rpt_v5');
+    if (raw) {
+      var s = JSON.parse(raw);
+      chk = s.chk || {};
+      sent = s.sent || {};
+      picker = s.picker || {};
+      cur = s.cur || 0;
+    }
+  } catch(e) {}
+}
+
+function guardar() {
+  try {
+    localStorage.setItem('rpt_v5', JSON.stringify({chk:chk, sent:sent, picker:picker, cur:cur}));
+  } catch(e) {}
+}
+
+function iniciales(n) {
+  return n.trim().split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+}
+
+function fmtFecha(ds) {
+  if (!ds) return '';
+  var p = ds.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+function startApp() {
+  var n = document.getElementById('iname').value.trim();
+  var dt = document.getElementById('idate').value;
+  var st = document.getElementById('istore').value.trim();
+  if (!n) { document.getElementById('iname').focus(); return; }
+  picker = {name:n, date:dt, store:st};
+  chk = {}; sent = {}; cur = 0;
+  guardar();
+  mostrarApp();
+}
+
+function mostrarApp() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('hav').textContent = iniciales(picker.name);
+  document.getElementById('hpn').textContent = picker.name;
+  var meta = [picker.store, picker.date ? 'Ingreso: '+fmtFecha(picker.date) : ''].filter(Boolean).join(' · ');
+  document.getElementById('hpm').textContent = meta;
+  renderAll();
+}
+
+function progDia(di) {
+  var t = 0, d = 0;
+  for (var si = 0; si < DY[di].s.length; si++) {
+    for (var ai = 0; ai < DY[di].s[si].a.length; ai++) {
+      t++;
+      if (chk[gk(di,si,ai)]) d++;
+    }
+  }
+  return {t:t, d:d};
+}
+
+function renderOverall() {
+  var t = 0, d = 0;
+  for (var i = 0; i < DY.length; i++) {
+    var p = progDia(i); t += p.t; d += p.d;
+  }
+  var pct = Math.round(d/t*100);
+  document.getElementById('ofill').style.width = pct+'%';
+  document.getElementById('olbl').textContent = d+' de '+t+' actividades';
+  document.getElementById('opct').textContent = pct+'%';
+}
+
+function renderFaseTabs() {
+  var html = '<div class="phw">';
+  for (var pi = 0; pi < PH.length; pi++) {
+    var ph = PH[pi];
+    var t = 0, d = 0;
+    for (var k = 0; k < ph.d.length; k++) {
+      var p = progDia(ph.d[k]); t += p.t; d += p.d;
+    }
+    var ac = DY[cur].p === pi;
+    var dn = d === t;
+    html += '<div class="phtab'+(ac?' active':'')+(dn?' pdone':'')+'" onclick="irFase('+pi+')">';
+    html += '<span>'+ph.l+'</span>';
+    html += '<small>'+(dn ? '✓ Completo' : d+'/'+t)+'</small>';
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('phtabs').innerHTML = html;
+}
+
+function renderDiaTabs() {
+  var ph = PH[DY[cur].p];
+  var html = '<div class="dyw">';
+  for (var k = 0; k < ph.d.length; k++) {
+    var di = ph.d[k];
+    var p = progDia(di);
+    var ac = di === cur;
+    var dn = p.d === p.t;
+    html += '<div class="dytab'+(ac?' active':'')+(dn?' ddone':'')+'" onclick="irDia('+di+')">';
+    html += '<span>'+DY[di].l+'</span>';
+    html += '<div class="dot"></div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('dytabs').innerHTML = html;
+}
+
+function renderContenido() {
+  var dy = DY[cur];
+  var p = progDia(cur);
+  var pct = Math.round(p.d/p.t*100);
+  var isSent = !!sent[cur];
+
+  var html = '<div class="dyhero">';
+  html += '<div class="hero-row"><div class="dbadge">'+dy.l+'</div><div class="pbadge">'+PH[dy.p].l+'</div></div>';
+  html += '<div class="dytitle">'+dy.t+'</div>';
+  html += '<div class="dprow"><div class="dpt"><div class="dpf" style="width:'+pct+'%"></div></div><div class="dpp">'+pct+'%</div></div>';
+  html += '</div>';
+
+  for (var si = 0; si < dy.s.length; si++) {
+    var sec = dy.s[si];
+    html += '<div class="sec">';
+    html += '<div class="sech"><div class="secline"></div><div class="secn">'+sec.l+'</div><div class="secline"></div></div>';
+    for (var ai = 0; ai < sec.a.length; ai++) {
+      var a = sec.a[ai];
+      var done = !!chk[gk(cur,si,ai)];
+      html += '<div class="act'+(done?' done':'')+'" onclick="toggle('+cur+','+si+','+ai+')">';
+      html += '<div class="chk">'+(done?'✓':'')+'</div>';
+      html += '<div class="ab"><div class="at">'+a.e+' '+a.t+'</div>';
+      if (a.d) html += '<div class="ad">'+a.d+'</div>';
+      html += '</div></div>';
+    }
+    html += '</div>';
+  }
+
+  if (pct === 100 && !isSent) {
+    var isLast = cur === DY.length - 1;
+    html += '<div class="banner green"><div class="ico">'+(isLast?'🏆':'🎉')+'</div>';
+    html += '<div class="ttl">'+(isLast?'¡Ruta completada!':dy.l+' completado!')+'</div>';
+    html += '<div class="sub">'+(isLast?'¡Felicitaciones! Eres un Picker 360°.':'Toca "Enviar Día al Sheet" para registrar tu avance.')+'</div></div>';
+  }
+
+  if (isSent) {
+    html += '<div class="banner blue"><div class="ico">✅</div>';
+    html += '<div class="ttl">'+dy.l+' enviado</div>';
+    html += '<div class="sub">¿Completaste más actividades? Toca "Actualizar Sheet".</div></div>';
+  }
+
+  document.getElementById('cnt').innerHTML = html;
+
+  document.getElementById('btnPrev').disabled = cur === 0;
+  var btnNext = document.getElementById('btnNext');
+  if (cur === DY.length - 1) { btnNext.disabled = true; btnNext.textContent = '¡Listo! ✓'; }
+  else { btnNext.disabled = false; btnNext.textContent = 'Siguiente →'; }
+
+  var btnSend = document.getElementById('btnSend');
+  btnSend.textContent = '📤 Enviar todos los días al Sheet'; btnSend.disabled = false;
+}
+
+function renderAll() {
+  renderOverall();
+  renderFaseTabs();
+  renderDiaTabs();
+  renderContenido();
+}
+
+function toggle(di, si, ai) {
+  var k = gk(di,si,ai);
+  chk[k] = !chk[k];
+  guardar();
+  renderAll();
+}
+
+function irDia(i) {
+  cur = i;
+  guardar();
+  renderAll();
+  window.scrollTo(0,0);
+}
+
+function cambiarDia(dir) {
+  var n = cur + dir;
+  if (n >= 0 && n < DY.length) irDia(n);
+}
+
+function irFase(pi) {
+  irDia(PH[pi].d[0]);
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+function enviarDiaIndividual(di, callback) {
+  var dy = DY[di];
+  var now = new Date();
+  var fecha = now.toLocaleDateString('es-PE');
+  var hora = now.toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit'});
+
+  var actividades = [];
+  for (var si = 0; si < dy.s.length; si++) {
+    for (var ai = 0; ai < dy.s[si].a.length; ai++) {
+      var a = dy.s[si].a[ai];
+      actividades.push({
+        nombre: a.e+' '+a.t,
+        estado: chk[gk(di,si,ai)] ? '✅ Realizado' : '⏳ Pendiente'
+      });
+    }
+  }
+
+  // Solo enviar si tiene al menos una actividad marcada
+  var tieneAlgo = actividades.some(function(a) { return a.estado === '✅ Realizado'; });
+  if (!tieneAlgo) { if (callback) callback(); return; }
+
+  var params = new URLSearchParams({
+    dia: dy.l,
+    nombre: picker.name || 'Sin nombre',
+    tienda: picker.store || 'Sin tienda',
+    fecha: fecha,
+    hora: hora,
+    actividades: JSON.stringify(actividades)
+  });
+
+  var img = new Image();
+  img.onload = img.onerror = function() {
+    sent[di] = true;
+    if (callback) callback();
+  };
+  img.src = GAS + '?' + params.toString();
+}
+
+function enviarDia() {
+  var btnSend = document.getElementById('btnSend');
+  btnSend.disabled = true;
+  btnSend.textContent = 'Enviando...';
+
+  // Recopilar todos los días que tienen actividades marcadas
+  var diasConData = [];
+  for (var di = 0; di < DY.length; di++) {
+    var tieneAlgo = false;
+    for (var si = 0; si < DY[di].s.length; si++) {
+      for (var ai = 0; ai < DY[di].s[si].a.length; ai++) {
+        if (chk[gk(di,si,ai)]) { tieneAlgo = true; break; }
+      }
+      if (tieneAlgo) break;
+    }
+    if (tieneAlgo) diasConData.push(di);
+  }
+
+  if (diasConData.length === 0) {
+    showToast('⚠️ No hay actividades marcadas.');
+    btnSend.disabled = false;
+    btnSend.textContent = '📤 Enviar al Sheet';
+    return;
+  }
+
+  var idx = 0;
+  function enviarSiguiente() {
+    if (idx >= diasConData.length) {
+      guardar();
+      renderAll();
+      showToast('✅ ' + diasConData.length + ' días enviados al Sheet!');
+      return;
+    }
+    enviarDiaIndividual(diasConData[idx], function() {
+      idx++;
+      enviarSiguiente();
+    });
+  }
+  enviarSiguiente();
+}
+
+// INIT
+cargar();
+if (picker.name) {
+  mostrarApp();
+} else {
+  document.getElementById('idate').valueAsDate = new Date();
+}
+</script>
+</body>
+</html>
